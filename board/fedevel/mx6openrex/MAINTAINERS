@@ -1,0 +1,8 @@
+MX6OPENREX BOARD
+M:	Robert Feranec <info@fedevel.com>
+S:	Maintained
+F:	board/fedevel/mx6openrex/
+F:	include/configs/mx6openrex.h
+F:	configs/mx6dlopenrex_defconfig
+F:	configs/mx6qopenrex_defconfig
+F:	configs/mx6openrex_spl_defconfig

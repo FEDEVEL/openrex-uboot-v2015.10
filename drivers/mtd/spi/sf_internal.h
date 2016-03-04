@@ -110,6 +110,7 @@ enum {
 #ifdef CONFIG_SPI_FLASH_SST
 # define CMD_SST_BP		0x02    /* Byte Program */
 # define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
+# define CMD_SST_ULBPR		0x98	/* Global Block Protection Unlock */
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		const void *buf);
@@ -181,6 +182,13 @@ int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
 {
+#ifdef CONFIG_SPI_FLASH_SST26
+	//quick fix to  unlock Global Block-Protection of SST26
+	//this may only need to be executed once, after power up
+	//TODO: do it properly in the flash initialization process
+	spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
+	spi_flash_cmd(flash->spi, CMD_SST_ULBPR, NULL, 0);
+#endif
 	return spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
 }
 

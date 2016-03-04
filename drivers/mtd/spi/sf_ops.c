@@ -277,11 +277,14 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 		return -1;
 	}
 
+#ifdef CONFIG_SPI_FLASH_SST26
+	//is_locked will freeze SST26, has to be fixed
+#else
 	if (flash->is_locked(flash, offset, len) > 0) {
 		printf("offset 0x%x is protected and cannot be erased\n", offset);
 		return -EINVAL;
 	}
-
+#endif
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 		erase_addr = offset;
@@ -324,10 +327,14 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 	page_size = flash->page_size;
 
+#ifdef CONFIG_SPI_FLASH_SST26
+	//is_locked will freeze SST26, has to be fixed
+#else
 	if (flash->is_locked(flash, offset, len) > 0) {
 		printf("offset 0x%x is protected and cannot be written\n", offset);
 		return -EINVAL;
 	}
+#endif
 
 	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
