@@ -698,7 +698,7 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	setenv("board_name", "OPENREX");
+	setenv("board_name", "iMX6-OpenRex");
 
 	if (is_mx6dqp())
 		setenv("board_rev", "MX6QP");

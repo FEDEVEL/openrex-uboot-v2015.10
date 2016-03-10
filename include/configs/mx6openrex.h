@@ -18,10 +18,11 @@
 #define CONFIG_MACH_TYPE	5082
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV	"ttymxc0"
-#define CONFIG_MMCROOT		"/dev/mmcblk0p1"
+#define CONFIG_MMCROOT		"/dev/mmcblk1p2"
 #define PHYS_SDRAM_SIZE		(2u * 1024 * 1024 * 1024) //2GB default for QUAD
 
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
+#define CONFIG_OPENREX_DEFAULT_ARCH_PREFIX  "imx6q-"
+#define CONFIG_OPENREX_DEFAULT_ARCH_POSTFIX  ""
 
 #define VIDEO_ARGS        "${video_args}"
 #define VIDEO_ARGS_SCRIPT "run video_args_script; "
@@ -29,10 +30,6 @@
 #include "mx6openrex_common.h"
 
 #define CONFIG_SYS_FSL_USDHC_NUM	1
-
-#if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		1	
-#endif
 
 #undef CONFIG_CMD_PCI
 #ifdef CONFIG_CMD_PCI
