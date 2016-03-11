@@ -1,29 +1,56 @@
-# openrex_uboot_v2015_10
-mx6q/dl/s/spl openrex u-boot v2015.10 
+# About
+### About this code
+This is a source code of uBoot v2015.10 for OpenRex board.
 
-# Download repository
-    git clone https://github.com/FEDEVEL/openrex-uboot-v2015.10.git
+### About OpenRex
+OpenRex is an open source hardware and software project.
+
+
+Website: http://www.imx6rex.com/open-rex/
+
+### More detailed manual
+For more detailed instructions about how to prepare software for OpenRex, go to:
+
+
+http://www.imx6rex.com/open-rex/software/how-develop-your-own-software-uboot-linux-filesystem-yocto/
+
+# Download sourceode
+    git clone -b jethro https://github.com/FEDEVEL/openrex-uboot-v2015.10.git
     cd openrex-uboot-v2015.10
 
-# Install cross compiler
-    export PATH="/opt/gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux/bin:~/workdir/bin:$PATH"
+# Install & select cross compiler
+
+### If you do not have any compiler installed (or you are not sure)
+    apt-get install gcc-arm-linux-gnueabihf
     export CROSS_COMPILE=arm-linux-gnueabihf-
+
+### If you have a compiler installed
+    export CROSS_COMPILE=/opt/freescale/usr/local/gcc-4.6.2-glibc-2.13-linaro-multilib-2011.12/fsl-linaro-toolchain/bin/arm-none-linux-gnueabi-
+
+# Setup Architecture
     export ARCH=arm
 
-# Setup cross compiler
-    apt-get install gcc-arm-linux-gnueabihf
-
-# Build (imx6q)
+# Build 
+### QUAD
     make distclean
     make mx6qopenrex_config
     make
-    cp u-boot.imx /tftp/uboot-mx6qopenrex.imx
+    cp u-boot.imx /tftp/imx6/u-boot-imx6q-openrex.imx
 
-# Build (imx6dl)
+### SOLO
     TODO
 
-# Build (imx6s)
-    TODO
+# Update OpenRex uBoot
+Go to OpenRex board, interrupt uBoot booting process (press any key). Then write following command:
+    run update_spi_uboot
+
+Note: if you would like to update SPI manually, you can use something like this:
+    mw.b 0x10800000 0xFF 0x80000;tftp 0x10800000 imx6/u-boot-imx6q-openrex.imx;sf probe;sf erase 0x0 0x80000;sf write 0x10800000 0x400 0x80000
+
+# The files you may want to have a look at
+    include/configs/mx6openrex.h
+    include/configs/mx6openrex_common.h
+    board/fedevel/mx6openrex/mx6openrex.c
     
 
 
