@@ -132,7 +132,7 @@
 		"if test ${ipaddr}; then; else " \
 			"setenv ipaddr   " CONFIG_ENV_DEFAULT_CLIENT_IP "; " \
 		"fi; " \
-		"if test ${serverip}; then; else " \
+		"if test -n ${serverip}; then; else " \
 			"setenv serverip " CONFIG_ENV_DEFAULT_SERVER_IP "; " \
 		"fi; " \
 		"if test ${netmask}; then; else " \

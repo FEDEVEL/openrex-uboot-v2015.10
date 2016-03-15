@@ -38,7 +38,11 @@ Here are instructions how to compile the source code
     cp u-boot.imx /tftp/imx6/u-boot-imx6q-openrex.imx
 
 ### SOLO
-    TODO
+    make distclean
+    make mx6sopenrex_config
+    make
+    cp u-boot.imx /tftp/imx6/u-boot-imx6s-openrex.imx
+
 
 # Update OpenRex uBoot
 Go to OpenRex board, interrupt uBoot booting process (press any key). Then write following command:

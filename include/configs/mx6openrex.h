@@ -19,10 +19,17 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV	"ttymxc0"
 #define CONFIG_MMCROOT		"/dev/mmcblk1p2"
-#define PHYS_SDRAM_SIZE		(2u * 1024 * 1024 * 1024) //2GB default for QUAD
 
-#define CONFIG_OPENREX_DEFAULT_ARCH_PREFIX  "imx6q-"
-#define CONFIG_OPENREX_DEFAULT_ARCH_POSTFIX  ""
+/* PARAMETERS FROM _defconfig (they are called there without CONFIG_)*/
+#define CONFIG_OPENREX_DEFAULT_ARCH_PREFIX  CONFIG_BOARD_TYPE_PREFIX
+#define CONFIG_OPENREX_DEFAULT_ARCH_POSTFIX  CONFIG_BOARD_TYPE_POSTFIX
+
+#if defined(CONFIG_DDR_SIZE) 
+#define PHYS_SDRAM_SIZE         CONFIG_DDR_SIZE
+#else
+#define PHYS_SDRAM_SIZE         SZ_256M
+#warning "Using default SDRAM size"
+#endif
 
 #define VIDEO_ARGS        "${video_args}"
 #define VIDEO_ARGS_SCRIPT "run video_args_script; "
