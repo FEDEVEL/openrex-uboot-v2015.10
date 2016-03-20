@@ -47,6 +47,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_OD_PAD_CTRL  (PAD_CTL_ODE | PAD_CTL_HYS |		\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_PUS_100K_UP )
 
+#define RESET_OD_PAD_CTRL  (PAD_CTL_ODE | PAD_CTL_HYS |		\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_PUS_100K_UP )
+
 #define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED | \
 		      PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
@@ -556,10 +559,12 @@ int board_eth_init(bd_t *bis)
 static iomux_v3_cfg_t const usb_otg_pads[] = {
 	//MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL), //OpenRex doesnt have USB PWR EN pin
 	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_KEY_COL4__USB_OTG_OC | MUX_PAD_CTRL(NO_PAD_CTRL), //Over current
 };
 
 static iomux_v3_cfg_t const usb_hc1_pads[] = {
 	//MX6_PAD_ENET_TXD1__GPIO1_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL), //OpenRex doesnt have USB PWR EN pin
+	MX6_PAD_GPIO_3__USB_H1_OC | MUX_PAD_CTRL(NO_PAD_CTRL), //Over current
 };
 
 static void setup_usb(void)
@@ -626,10 +631,21 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static iomux_v3_cfg_t const peripheral_reset_pad[] = {
+	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(RESET_OD_PAD_CTRL)
+};
+
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	//RESET Peripherals
+	imx_iomux_v3_setup_multiple_pads(peripheral_reset_pad,
+						 ARRAY_SIZE(peripheral_reset_pad));
+	gpio_set_value(IMX_GPIO_NR(5, 2), 0);
+	mdelay(2);
+	gpio_set_value(IMX_GPIO_NR(5, 2), 1);
 
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
