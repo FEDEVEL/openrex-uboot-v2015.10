@@ -571,13 +571,12 @@ static void setup_usb(void)
 {
 
 	imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
-					 ARRAY_SIZE(usb_otg_pads));
+					 ARRAY_SIZE(usb_otg_pads));	
 
-	
-	// set daisy chain for otg_pin_id on 6q.
-	// for 6dl, this bit is reserved
-	
-	imx_iomux_set_gpr_register(1, 13, 1, 0);
+	//The ID pin of OTG Port needs to configure the GPR1 bit 13 for selecting
+	//its daisy chain. Function "imx_iomux_set_gpr_register" handles GPR register setting.	
+	imx_iomux_set_gpr_register(1, 13, 1, 1); //for q, GPR1, bit 13, set to 1 to select GPIO_1
+	//for dl, do we need to set IOMUXC_ANALOG_USB_OTG_ID_SELECT_INPUT, bit DAISY to 1 (?)
 
 	imx_iomux_v3_setup_multiple_pads(usb_hc1_pads,
 					 ARRAY_SIZE(usb_hc1_pads));
