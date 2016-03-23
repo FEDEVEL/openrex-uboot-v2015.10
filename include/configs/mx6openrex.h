@@ -19,6 +19,7 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONFIG_CONSOLE_DEV	"ttymxc0"
 #define CONFIG_MMCROOT		"/dev/mmcblk1p2"
+#define CONFIG_SATAROOT		"/dev/sda2"
 
 /* PARAMETERS FROM _defconfig (they are called there without CONFIG_)*/
 #define CONFIG_OPENREX_DEFAULT_ARCH_PREFIX  CONFIG_BOARD_TYPE_PREFIX

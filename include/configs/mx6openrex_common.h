@@ -122,7 +122,10 @@
 	"initrd_high=0xffffffff\0" \
 	"mmcdev=0\0" \
 	"mmcpart=1\0" \
+	"satadev=0\0" \
+	"satapart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"sataroot=" CONFIG_SATAROOT " rootwait rw\0" \
 	"spidev=" __stringify(CONFIG_ENV_SPI_BUS) "\0" \
 	"spics=" __stringify(CONFIG_ENV_SPI_CS) "\0" \
 	"set_ethernet=" \
@@ -226,12 +229,17 @@
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot} " \
 		VIDEO_ARGS "\0" \
+	"sataargs=setenv bootargs console=${console},${baudrate} " \
+		"root=${sataroot} " \
+		VIDEO_ARGS "\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"sataloadimage=fatload sata ${satadev}:${satapart} ${loadaddr} ${image}\0" \
+	"sataloadfdt=fatload sata ${satadev}:${satapart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		VIDEO_ARGS_SCRIPT \
 		"run mmcargs; " \
@@ -248,6 +256,28 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
+	"sataboot=echo Booting from SATA ...; " \
+		VIDEO_ARGS_SCRIPT \
+		"run findfdt; " \
+		"run sataargs; " \
+		"if sata init; then " \
+			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+				"if run sataloadimage; then " \
+					"if run sataloadfdt; then " \
+						"bootz ${loadaddr} - ${fdt_addr}; " \
+					"else " \
+						"if test ${boot_fdt} = try; then " \
+							"bootz; " \
+						"else " \
+							"echo WARN: Cannot load the DT; " \
+						"fi; " \
+					"fi; " \
+				"else echo WARN: Cannot load the image; " \
+				"fi; " \
+			"else " \
+				"bootz; " \
+			"fi; " \
+		"else run netboot; fi;\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
 		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
