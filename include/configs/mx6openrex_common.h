@@ -102,6 +102,7 @@
 #define CONFIG_ENV_DEFAULT_CLIENT_IP        "192.168.0.150"
 #define CONFIG_ENV_DEFAULT_SERVER_IP        "192.168.0.1"
 #define CONFIG_ENV_DEFAULT_NETMASK          "255.255.255.0"
+#define CONFIG_ENV_DEFAULT_NFSROOT          "/home/fedevel/nfs"
 #define CONFIG_ENV_DEFAULT_TFTP_DIR         "imx6"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -113,6 +114,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
+	"nfsroot=" CONFIG_ENV_DEFAULT_NFSROOT "\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
 	"dfuspi=dfu 0 sf 0:0:10000000:0\0" \
 	"dfu_alt_info_spl=spl raw 0x400\0" \
@@ -240,7 +242,7 @@
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"sataloadimage=fatload sata ${satadev}:${satapart} ${loadaddr} ${image}\0" \
 	"sataloadfdt=fatload sata ${satadev}:${satapart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
+	"mmcboot=" \
 		VIDEO_ARGS_SCRIPT \
 		"run mmcargs; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
@@ -256,7 +258,20 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
-	"sataboot=echo Booting from SATA ...; " \
+	"bootmmc=echo Booting from MMC ...; " \
+		"run findfdt;" \
+		"mmc dev ${mmcdev};" \
+		"if mmc rescan; then " \
+			"if run loadbootscript; then " \
+			"run bootscript; " \
+			"else " \
+				"if run loadimage; then " \
+					"run mmcboot; " \
+				"else run netboot; " \
+				"fi; " \
+			"fi; " \
+		"else run netboot; fi;\0" \
+	"bootsata=echo Booting from SATA ...; " \
 		VIDEO_ARGS_SCRIPT \
 		"run findfdt; " \
 		"run sataargs; " \
@@ -280,18 +295,14 @@
 		"else run netboot; fi;\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp rootwait rw\0" \
 	"netboot=echo Booting from net ...; " \
 		"run set_ethernet; " \
+		"run update_set_filename; " \
 		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
+		"tftp ${loadaddr} ${tftp_dir}/${upd_kernel}; " \
 		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+			"if tftp ${fdt_addr} ${tftp_dir}/${upd_fdt}; then " \
 				"bootz ${loadaddr} - ${fdt_addr}; " \
 			"else " \
 				"if test ${boot_fdt} = try; then " \
@@ -303,30 +314,20 @@
 		"else " \
 			"bootz; " \
 		"fi;\0" \
-		"findfdt="\
+	"findfdt="\
+		"if test $fdt_file = undefined; then " \
+			"if test $board_name = iMX6-OpenRex && test $board_rev = MX6Q; then " \
+				"setenv fdt_file imx6q-openrex.dtb; fi; " \
+			"if test $board_name = iMX6-OpenRex && test $board_rev = MX6DL; then " \
+				"setenv fdt_file imx6dl-openrex.dtb; fi; " \
 			"if test $fdt_file = undefined; then " \
-				"if test $board_name = iMX6-OpenRex && test $board_rev = MX6Q; then " \
-					"setenv fdt_file imx6q-openrex.dtb; fi; " \
-				"if test $board_name = iMX6-OpenRex && test $board_rev = MX6DL; then " \
-					"setenv fdt_file imx6dl-openrex.dtb; fi; " \
-				"if test $fdt_file = undefined; then " \
-					"echo WARNING: Could not determine dtb to use; fi; " \
-			"fi;\0" \
+				"echo WARNING: Could not determine dtb to use; fi; " \
+		"fi;\0" \
+	"bootnet=run netboot;\0" \
 
 
 #define CONFIG_BOOTCOMMAND \
-	"run findfdt;" \
-	"mmc dev ${mmcdev};" \
-	"if mmc rescan; then " \
-		"if run loadbootscript; then " \
-		"run bootscript; " \
-		"else " \
-			"if run loadimage; then " \
-				"run mmcboot; " \
-			"else run netboot; " \
-			"fi; " \
-		"fi; " \
-	"else run netboot; fi"
+	"run bootmmc;"
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
